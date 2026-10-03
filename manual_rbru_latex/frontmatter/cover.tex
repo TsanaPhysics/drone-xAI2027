@@ -1,65 +1,103 @@
 \begin{titlepage}
 \begin{tikzpicture}[remember picture,overlay]
     % Background Gradient Fill
-    \fill[left color=rbruNavy!98!black, right color=rbruNavy!88!rbruSlate] (current page.south west) rectangle (current page.north east);
+    \fill[top color=rbruNavy!98!black, bottom color=rbruNavy!88!rbruSlate] (current page.south west) rectangle (current page.north east);
 
-    % Top Gold Accent Bar
+    % Top & Bottom Gold Accent Bars
     \fill[rbruGold] ($(current page.north west)+(0,-8mm)$) rectangle ($(current page.north east)+(0,-11mm)$);
+    \fill[rbruGold] ($(current page.south west)+(0,11mm)$) rectangle ($(current page.south east)+(0,8mm)$);
 
-    % HUD Reticle Decorative Ring
-    \draw[agriGreen!35, line width=1.5pt] ($(current page.center)+(0,35mm)$) circle (52mm);
-    \draw[agriCyan!30, dashed, line width=1pt] ($(current page.center)+(0,35mm)$) circle (62mm);
-    \draw[rbruGold!40, line width=1pt] ($(current page.center)+(0,35mm)$) circle (25mm);
-
-    % Crosshair Lines
-    \draw[agriGreen!30, line width=1pt] ($(current page.center)+(-70mm,35mm)$) -- ($(current page.center)+(70mm,35mm)$);
-    \draw[agriGreen!30, line width=1pt] ($(current page.center)+(0,-35mm)$) -- ($(current page.center)+(0,105mm)$);
+    % Futuristic Cyber Grid Lines
+    \foreach \y in {-70, -35, 0, 35, 70} {
+        \draw[white!4, line width=0.4pt] ($(current page.west)+(0,\y mm)$) -- ($(current page.east)+(0,\y mm)$);
+    }
 
     % Corner Brackets
-    \draw[rbruGold, line width=2pt] ($(current page.north west)+(20mm,-20mm)$) -- ++(15mm,0);
-    \draw[rbruGold, line width=2pt] ($(current page.north west)+(20mm,-20mm)$) -- ++(0,-15mm);
-    \draw[rbruGold, line width=2pt] ($(current page.north east)+(-20mm,-20mm)$) -- ++(-15mm,0);
-    \draw[rbruGold, line width=2pt] ($(current page.north east)+(-20mm,-20mm)$) -- ++(0,-15mm);
-    \draw[rbruGold, line width=2pt] ($(current page.south west)+(20mm,20mm)$) -- ++(15mm,0);
-    \draw[rbruGold, line width=2pt] ($(current page.south west)+(20mm,20mm)$) -- ++(0,15mm);
-    \draw[rbruGold, line width=2pt] ($(current page.south east)+(-20mm,20mm)$) -- ++(-15mm,0);
-    \draw[rbruGold, line width=2pt] ($(current page.south east)+(-20mm,20mm)$) -- ++(0,15mm);
+    \draw[rbruGold, line width=2pt] ($(current page.north west)+(16mm,-18mm)$) -- ++(14mm,0);
+    \draw[rbruGold, line width=2pt] ($(current page.north west)+(16mm,-18mm)$) -- ++(0,-14mm);
+    \draw[rbruGold, line width=2pt] ($(current page.north east)+(-16mm,-18mm)$) -- ++(-14mm,0);
+    \draw[rbruGold, line width=2pt] ($(current page.north east)+(-16mm,-18mm)$) -- ++(0,-14mm);
+    \draw[rbruGold, line width=2pt] ($(current page.south west)+(16mm,18mm)$) -- ++(14mm,0);
+    \draw[rbruGold, line width=2pt] ($(current page.south west)+(16mm,18mm)$) -- ++(0,14mm);
+    \draw[rbruGold, line width=2pt] ($(current page.south east)+(-16mm,18mm)$) -- ++(-14mm,0);
+    \draw[rbruGold, line width=2pt] ($(current page.south east)+(-16mm,18mm)$) -- ++(0,14mm);
+
+    % Header Block
+    \node[anchor=north] at ($(current page.north)+(0,-20mm)$) {
+        {\fontsize{13}{16}\selectfont\color{rbruGold}\textbf{เอกสารคำสอนและคู่มือปฏิบัติการวิชาการ}}
+    };
+    \node[anchor=north] at ($(current page.north)+(0,-27mm)$) {
+        {\fontsize{10}{13}\selectfont\color{white!80}โครงการนวัตกรรมเกษตรแม่นยำด้วยอากาศยานไร้คนขับ (RBRU Agri-AI Series)}
+    };
+
+    % Gold Separator
+    \draw[rbruGold, line width=1.5pt] ($(current page.north)+(-55mm,-33mm)$) -- ($(current page.north)+(55mm,-33mm)$);
+
+    % Concise Powerful Main Title
+    \node[anchor=north] at ($(current page.north)+(0,-36mm)$) {
+        {\fontsize{27}{33}\selectfont\bfseries\color{white}คู่มือพัฒนาโดรนเกษตรอัจฉริยะ}
+    };
+    \node[anchor=north] at ($(current page.north)+(0,-48mm)$) {
+        {\fontsize{15}{20}\selectfont\bfseries\color{agriLightGreen}สถาปัตยกรรมแอปพลิเคชันและการวิเคราะห์ภาพถ่ายเชิงปริมาณ}
+    };
+    \node[anchor=north] at ($(current page.north)+(0,-58mm)$) {
+        {\fontsize{11}{14}\selectfont\color{agriCyan!95}\textbf{MAGIC Drone Agri-Vision Pro \textendash\ Edge AI \& Autonomous Flight}}
+    };
+
+    % Hero Drone Telemetry Graphic & Rounded Frame
+    \draw[agriGreen!45, line width=1.2pt] ($(current page.center)+(0,-6mm)$) circle (47mm);
+    \draw[agriCyan!35, dashed, line width=0.8pt] ($(current page.center)+(0,-6mm)$) circle (52mm);
+    \draw[rbruGold!60, line width=1pt] ($(current page.center)+(0,-6mm)$) circle (43mm);
+
+    % Central Drone Image Frame
+    \node[
+        rounded corners=16pt,
+        draw=rbruGold,
+        line width=2.5pt,
+        minimum width=78mm,
+        minimum height=78mm,
+        path picture={
+            \node at (path picture bounding box.center){
+                \includegraphics[width=84mm,height=84mm,keepaspectratio]{assets/cover_drone.png}
+            };
+        }
+    ] at ($(current page.center)+(0,-6mm)$) {};
+
+    % HUD Reticle Crosshair Ticks
+    \draw[agriCyan!70, line width=1pt] ($(current page.center)+(-52mm,-6mm)$) -- ($(current page.center)+(-44mm,-6mm)$);
+    \draw[agriCyan!70, line width=1pt] ($(current page.center)+(44mm,-6mm)$) -- ($(current page.center)+(52mm,-6mm)$);
+    \draw[agriCyan!70, line width=1pt] ($(current page.center)+(0,43mm)$) -- ($(current page.center)+(0,51mm)$);
+    \draw[agriCyan!70, line width=1pt] ($(current page.center)+(0,-55mm)$) -- ($(current page.center)+(0,-63mm)$);
+
+    % Floating HUD Badges with High Contrast
+    \node[anchor=east, fill=rbruNavy!90!black, draw=agriGreen, rounded corners=3pt, inner sep=4pt] at ($(current page.center)+(-43mm, 26mm)$) {
+        {\fontsize{8}{10}\selectfont\color{agriLightGreen}\textbf{ALT 25.0 M \textbar\ GSD 1.12 CM/PX}}
+    };
+    \node[anchor=west, fill=rbruNavy!90!black, draw=rbruGold, rounded corners=3pt, inner sep=4pt] at ($(current page.center)+(43mm, 26mm)$) {
+        {\fontsize{8}{10}\selectfont\color{rbruGold}\textbf{BAT 94\% \textbar\ DURIAN AI}}
+    };
+
+    % Author Section Separator
+    \draw[rbruGold, line width=1.2pt] ($(current page.south)+(-45mm,79mm)$) -- ($(current page.south)+(45mm,79mm)$);
+
+    % Authors Title & Names
+    \node[anchor=north] at ($(current page.south)+(0,75mm)$) {
+        {\fontsize{11}{14}\selectfont\color{rbruGold}\textbf{ผู้ออกแบบและพัฒนา}}
+    };
+    \node[anchor=north] at ($(current page.south)+(0,67mm)$) {
+        {\fontsize{17}{21}\selectfont\bfseries\color{white}ผู้ช่วยศาสตราจารย์ ดร.ชีวะ ทัศนา}
+    };
+    \node[anchor=north] at ($(current page.south)+(0,59mm)$) {
+        {\fontsize{17}{21}\selectfont\bfseries\color{white}ผู้ช่วยศาสตราจารย์ ดร.จิรภัทร จันทมาลี}
+    };
+    \node[anchor=north] at ($(current page.south)+(0,49mm)$) {
+        {\fontsize{11}{14}\selectfont\color{white!85}สาขาวิชาฟิสิกส์ คณะวิทยาศาสตร์และเทคโนโลยี}
+    };
+    \node[anchor=north] at ($(current page.south)+(0,43mm)$) {
+        {\fontsize{11}{14}\selectfont\color{white!85}มหาวิทยาลัยราชภัฏรำไพพรรณี}
+    };
+    \node[anchor=north] at ($(current page.south)+(0,31mm)$) {
+        {\fontsize{11}{14}\selectfont\color{rbruGold}\textbf{พุทธศักราช 2569}}
+    };
 \end{tikzpicture}
-
-\vspace*{12mm}
-
-\begin{flushright}
-    {\fontsize{14}{17}\selectfont\color{rbruGold}\textbf{เอกสารคำสอนและคู่มือปฏิบัติการวิชาชีพขั้นสูง}}\par
-    \vspace{4pt}
-    {\fontsize{11}{14}\selectfont\color{white!80}โครงการพัฒนาอากาศยานไร้คนขับเพื่อการเกษตรอัจฉริยะ (RBRU Agri-AI Series)}\par
-\end{flushright}
-
-\vspace{18mm}
-
-\begin{flushright}
-    {\fontsize{28}{34}\selectfont\bfseries\color{white}คู่มือสถาปัตยกรรมและเทคโนโลยี}\par
-    \vspace{6pt}
-    {\fontsize{32}{38}\selectfont\bfseries\color{rbruGold}การพัฒนาแอปพลิเคชันควบคุมโดรน}\par
-    \vspace{6pt}
-    {\fontsize{24}{30}\selectfont\bfseries\color{agriLightGreen}และการวิเคราะห์ภาพถ่ายการเกษตรอัจฉริยะ}\par
-    \vspace{8pt}
-    {\fontsize{14}{18}\selectfont\color{agriCyan!90}\textbf{MAGIC Drone Agri-Vision Pro: Mobile Architecture \& Remote Sensing}}\par
-    \vspace{14pt}
-    {\color{rbruGold}\rule{0.65\textwidth}{2.5pt}}\par
-\end{flushright}
-
-\vfill
-
-\begin{flushright}
-    {\fontsize{18}{22}\selectfont\bfseries\color{white}ผู้ช่วยศาสตราจารย์ ดร.ชีวะ ทัศนา}\par
-    \vspace{4pt}
-    {\fontsize{12}{15}\selectfont\color{white!85}ปร.ด. (ฟิสิกส์ประยุกต์), วท.ม. (ฟิสิกส์ประยุกต์), วท.บ. (ฟิสิกส์)}\par
-    \vspace{4pt}
-    {\fontsize{12}{15}\selectfont\color{white!70}สาขาวิชาฟิสิกส์ คณะวิทยาศาสตร์และเทคโนโลยี}\par
-    {\fontsize{12}{15}\selectfont\color{white!70}มหาวิทยาลัยราชภัฏรำไพพรรณี}\par
-    \vspace{10pt}
-    {\fontsize{11}{14}\selectfont\color{rbruGold}\textbf{พุทธศักราช 2569}}\par
-\end{flushright}
-
-\vspace*{10mm}
 \end{titlepage}
