@@ -44,13 +44,15 @@
         {\fontsize{11}{14}\selectfont\color{agriCyan!95}\textbf{MAGIC Drone Agri-Vision Pro \textendash\ Edge AI \& Autonomous Flight}}
     };
 
-    % Author Section Separator
-    \draw[rbruGold, line width=1.2pt] ($(current page.south)+(-45mm,79mm)$) -- ($(current page.south)+(45mm,79mm)$);
-
-    % Authors Title & Names
-    \node[anchor=north] at ($(current page.south)+(0,75mm)$) {
-        {\fontsize{11}{14}\selectfont\color{rbruGold}\textbf{ผู้ออกแบบและพัฒนา}}
+    % Central FPV Hero Graphic (Clean Squircle Badge with Glow)
+    \node[anchor=center, inner sep=0pt] at ($(current page.center)+(0,6mm)$) {
+        \includegraphics[width=84mm,height=84mm,keepaspectratio]{assets/app_icon_fpv_badge.png}
     };
+
+    % Author Section Separator
+    \draw[rbruGold, line width=1.2pt] ($(current page.south)+(-40mm,74mm)$) -- ($(current page.south)+(40mm,74mm)$);
+
+    % Authors Names (No academic titles, no role label)
     \node[anchor=north] at ($(current page.south)+(0,67mm)$) {
         {\fontsize{18}{22}\selectfont\bfseries\color{white}ชีวะ ทัศนา}
     };
