@@ -7,10 +7,10 @@
     \fill[rbruGold] ($(current page.north west)+(0,-8mm)$) rectangle ($(current page.north east)+(0,-11mm)$);
     \fill[rbruGold] ($(current page.south west)+(0,11mm)$) rectangle ($(current page.south east)+(0,8mm)$);
 
-    % Futuristic Cyber Grid Lines
-    \foreach \y in {-70, -35, 0, 35, 70} {
-        \draw[white!4, line width=0.4pt] ($(current page.west)+(0,\y mm)$) -- ($(current page.east)+(0,\y mm)$);
-    }
+    % Full Cover Faint Drone Background Watermark (High Transparency)
+    \node[anchor=center, inner sep=0pt] at ($(current page.center)+(0,3mm)$) {
+        \includegraphics[width=225mm,height=225mm,keepaspectratio]{assets/cover_bg_ultra_faint.png}
+    };
 
     % Corner Brackets
     \draw[rbruGold, line width=2pt] ($(current page.north west)+(16mm,-18mm)$) -- ++(14mm,0);
@@ -42,39 +42,6 @@
     };
     \node[anchor=north] at ($(current page.north)+(0,-58mm)$) {
         {\fontsize{11}{14}\selectfont\color{agriCyan!95}\textbf{MAGIC Drone Agri-Vision Pro \textendash\ Edge AI \& Autonomous Flight}}
-    };
-
-    % Hero Drone Telemetry Graphic & Rounded Frame
-    \draw[agriGreen!45, line width=1.2pt] ($(current page.center)+(0,-6mm)$) circle (47mm);
-    \draw[agriCyan!35, dashed, line width=0.8pt] ($(current page.center)+(0,-6mm)$) circle (52mm);
-    \draw[rbruGold!60, line width=1pt] ($(current page.center)+(0,-6mm)$) circle (43mm);
-
-    % Central Drone Image Frame
-    \node[
-        rounded corners=16pt,
-        draw=rbruGold,
-        line width=2.5pt,
-        minimum width=78mm,
-        minimum height=78mm,
-        path picture={
-            \node at (path picture bounding box.center){
-                \includegraphics[width=84mm,height=84mm,keepaspectratio]{assets/cover_drone.png}
-            };
-        }
-    ] at ($(current page.center)+(0,-6mm)$) {};
-
-    % HUD Reticle Crosshair Ticks
-    \draw[agriCyan!70, line width=1pt] ($(current page.center)+(-52mm,-6mm)$) -- ($(current page.center)+(-44mm,-6mm)$);
-    \draw[agriCyan!70, line width=1pt] ($(current page.center)+(44mm,-6mm)$) -- ($(current page.center)+(52mm,-6mm)$);
-    \draw[agriCyan!70, line width=1pt] ($(current page.center)+(0,43mm)$) -- ($(current page.center)+(0,51mm)$);
-    \draw[agriCyan!70, line width=1pt] ($(current page.center)+(0,-55mm)$) -- ($(current page.center)+(0,-63mm)$);
-
-    % Floating HUD Badges with High Contrast
-    \node[anchor=east, fill=rbruNavy!90!black, draw=agriGreen, rounded corners=3pt, inner sep=4pt] at ($(current page.center)+(-43mm, 26mm)$) {
-        {\fontsize{8}{10}\selectfont\color{agriLightGreen}\textbf{ALT 25.0 M \textbar\ GSD 1.12 CM/PX}}
-    };
-    \node[anchor=west, fill=rbruNavy!90!black, draw=rbruGold, rounded corners=3pt, inner sep=4pt] at ($(current page.center)+(43mm, 26mm)$) {
-        {\fontsize{8}{10}\selectfont\color{rbruGold}\textbf{BAT 94\% \textbar\ DURIAN AI}}
     };
 
     % Author Section Separator
