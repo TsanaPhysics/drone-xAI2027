@@ -1,0 +1,179 @@
+\chapter{การพัฒนาแอปพลิเคชันควบคุมการบินด้วย Flutter และสถาปัตยกรรมส่วนต่อประสาน}
+\label{chap:ch02}
+
+% --- หน้าที่ 1 ของบท: แผนบริหารการสอน (กล่อง 1 และ 2) ---
+\section*{แผนบริหารการสอนประจำบทที่ 2}
+\addcontentsline{toc}{section}{แผนบริหารการสอนประจำบทที่ 2}
+
+\begin{planbox}{หัวข้อเนื้อหาประจำบท}
+\begin{enumerate}
+    \item การออกแบบหน้าจอนักบิน Heads-Up Display และการซ้อนภาพเสมือนจริง AR Telemetry
+    \item ระบบคันโยกควบคุมเสมือน Virtual Dual Joysticks และระบบปรับสมดุล Digital Trim
+    \item โหมดการแสดงผลหน้าจอคู่ Split-Screen Cockpit Mode สำหรับงานเกษตรกรรม
+    \item ระบบแจ้งเตือนความปลอดภัยและการสั่นสะเทือนตอบสนอง Haptic Feedback Protocol
+    \item การวางแผนเส้นทางบินอัตโนมัติและระบบกำหนดขอบเขตแปลง Polygon Geofencing
+\end{enumerate}
+\end{planbox}
+
+\begin{planbox}{วัตถุประสงค์เชิงพฤติกรรม}
+\begin{enumerate}
+    \item ออกแบบและพัฒนาส่วนต่อประสานผู้ใช้แบบ HUD ด้วยวิดเจ็ตใน Flutter ได้อย่างสวยงาม
+    \item สร้างระบบคันโยกสัมผัสเสมือนเพื่อแปลงพิกัดหน้าจอเป็นคำสั่งไบนารีได้อย่างถูกต้อง
+    \item พัฒนาระบบแสดงผลสองหน้าจอเพื่อเชื่อมต่อภาพถ่ายจริงกับแผนที่ความร้อนสเปกตรัมได้อย่างลงตัว
+    \item กำหนดเงื่อนไขและโปรโตคอลความปลอดภัยพร้อมระบบตอบสนองด้วยการสั่นสะเทือนได้อย่างมีประสิทธิภาพ
+    \item วาดขอบเขตแปลงเกษตรและสร้างเส้นทางบินสำรวจแบบ Lawnmower Grid ได้อย่างสมบูรณ์
+\end{enumerate}
+\end{planbox}
+
+\newpage
+
+% --- หน้าที่ 2 ของบท: แผนบริหารการสอน (กล่อง 3, 4, 5) ---
+\begin{planbox}{วิธีสอนและกิจกรรมการเรียนการสอน}
+\begin{enumerate}
+    \item การสาธิตการเขียนโค้ดโครงสร้าง Clean Architecture และ Provider State Management
+    \item การทดลองจำลองระบบคันโยกสัมผัสและการตอบสนองของเส้นขอบฟ้าเทียมบนเครื่องจำลอง
+    \item กิจกรรมฝึกปฏิบัติการกำหนดพิกัดขอบเขตแปลงเกษตรกรรมบนระบบสารสนเทศภูมิศาสตร์
+    \item การทดสอบระบบความปลอดภัยและระบบตัดการทำงานฉุกเฉินในสถานการณ์จำลอง
+\end{enumerate}
+\end{planbox}
+
+\begin{planbox}{สื่อการเรียนการสอน}
+\begin{enumerate}
+    \item ซอร์สโค้ดโปรเจกต์ Flutter Drone Agri บนระบบจัดการเวอร์ชัน
+    \item สมาร์ทโฟนหรือแท็บเล็ตสำหรับการติดตั้งและทดสอบโปรแกรมภาคสนาม
+    \item ชุดข้อมูลจำลองค่าโทรมาตรการบินและพิกัดภูมิศาสตร์แปลงเกษตรกรรม
+    \item เอกสารประกอบการสอนสถาปัตยกรรมแอปพลิเคชันและการออกแบบส่วนต่อประสาน
+\end{enumerate}
+\end{planbox}
+
+\begin{planbox}{การวัดและประเมินผล}
+\begin{enumerate}
+    \item การประเมินความสมบูรณ์และความถูกต้องของโค้ดโปรแกรมที่พัฒนาขึ้น
+    \item การทดสอบประสิทธิภาพการทำงานของส่วนต่อประสานผู้ใช้และความลื่นไหลในการตอบสนอง
+    \item การประเมินผลจากรายงานการทดสอบการบินเสมือนจริงและการตอบคำถามท้ายบท
+\end{enumerate}
+\end{planbox}
+
+\clearpage
+
+% --- หน้าที่ 3 เป็นต้นไป: เนื้อหาวิชาการ ---
+\section{การออกแบบหน้าจอนักบินและการซ้อนภาพเสมือนจริง}
+
+การพัฒนาส่วนต่อประสานผู้ใช้สำหรับควบคุมอากาศยานไร้คนขับ จำเป็นต้องนำเสนอข้อมูลสภาวะการบินที่สำคัญแก่นักบินอย่างชัดเจนในเวลาเสี้ยววินาที ระบบจึงประยุกต์ใช้แนวคิด \textbf{Heads-Up Display (หรือ HUD)} ซึ่งนำข้อมูลโทรมาตรการบินมาซ้อนทับบนภาพสตรีมวิดีโอสดในรูปแบบ Augmented Reality
+
+องค์ประกอบของหน้าจอ HUD ที่พัฒนาด้วย Flutter CustomPainter ประกอบด้วย
+\begin{enumerate}
+    \item \textbf{เส้นขอบฟ้าเทียมและแถบวัดมุมก้มเงย (Artificial Horizon and Pitch Ladder)} หมุนเอียงตามมุม Roll และเลื่อนขึ้นลงตามมุม Pitch ของโดรน ทำให้นักบินรับรู้ท่าทางการบินในอากาศได้อย่างแม่นยำ
+    \item \textbf{แถบเข็มทิศจำลองส่วนบน (Top Compass Heading Tape)} แสดงทิศทางการหันหัวของโดรนเป็นองศาตั้งแต่ 0 ถึง 360 องศา พร้อมระบุทิศทางหลัก
+    \item \textbf{เป้าเล็งและตัววัดระยะเสมือน (Targeting Reticle and Laser Rangefinder)} แสดงจุดกึ่งกลางของกล้องพร้อมระดับความสูงจริงเหนือผิวดิน (Altitude Above Ground Level หรือ AGL)
+    \item \textbf{กริดมุมมองสามมิติของแปลงเกษตร (Spatial Agricultural Grid)} เส้นจำลองแนวร่องสวนแบบทัศนมิติ ช่วยกะระยะห่างระหว่างโดรนกับทรงพุ่มพืช
+\end{enumerate}
+
+\begin{figure}[H]
+\centering
+\resizebox{0.86\textwidth}{!}{
+\begin{tikzpicture}[>=Stealth, node distance=1.5cm]
+    % App Frame
+    \draw[draw=rbruNavy, fill=black, line width=2pt, rounded corners=5mm] (0,0) rectangle (12,7);
+    
+    % Video Canvas Background
+    \shade[inner color=agriGreen!30!black, outer color=black] (0.2,0.2) rectangle (11.8,6.8);
+    
+    % Horizon Line
+    \draw[color=agriCyan, line width=1.5pt] (3,3.5) -- (5,3.5);
+    \draw[color=agriCyan, line width=1.5pt] (7,3.5) -- (9,3.5);
+    \draw[color=agriCyan, line width=1pt] (4.5,4.2) -- (7.5,4.2);
+    \draw[color=agriCyan, line width=1pt] (4.5,2.8) -- (7.5,2.8);
+    
+    % Center Reticle
+    \draw[color=agriGreen, line width=1.5pt] (6,3.5) circle (1.0cm);
+    \draw[color=agriGreen, line width=1.2pt] (6,3.5) circle (0.1cm);
+    \draw[color=agriGreen, line width=1pt] (4.6,3.5) -- (5.2,3.5);
+    \draw[color=agriGreen, line width=1pt] (6.8,3.5) -- (7.4,3.5);
+    \draw[color=agriGreen, line width=1pt] (6,2.1) -- (6,2.7);
+    \draw[color=agriGreen, line width=1pt] (6,4.3) -- (6,4.9);
+    
+    % Left Joystick Mock
+    \draw[draw=agriCyan!60, fill=agriCyan!10, line width=1.2pt] (1.8,1.8) circle (1.2cm);
+    \draw[fill=agriCyan] (1.8,1.8) circle (0.4cm);
+    \node[color=white, font=\footnotesize] at (1.8,0.3) {\textbf{THROTTLE / YAW}};
+
+    % Right Joystick Mock
+    \draw[draw=agriCyan!60, fill=agriCyan!10, line width=1.2pt] (10.2,1.8) circle (1.2cm);
+    \draw[fill=agriCyan] (10.2,1.8) circle (0.4cm);
+    \node[color=white, font=\footnotesize] at (10.2,0.3) {\textbf{PITCH / ROLL}};
+
+    % Top Ribbon
+    \draw[draw=agriCyan!40, fill=rbruNavy!80, rounded corners=2mm] (3.8,6.2) rectangle (8.2,6.7);
+    \node[color=agriCyan, font=\footnotesize] at (6,6.45) {\textbf{HDG: 045° (NE) | ALT: 15.0m | SPD: 3.5 m/s}};
+
+    % Action Buttons Center
+    \draw[draw=agriCyan, fill=agriCyan!20, rounded corners=1mm] (4.2,0.6) rectangle (5.2,1.1);
+    \node[color=agriCyan, font=\tiny] at (4.7,0.85) {\textbf{TAKEOFF}};
+    \draw[draw=agriYellow, fill=agriYellow!20, rounded corners=1mm] (5.5,0.6) rectangle (6.5,1.1);
+    \node[color=agriYellow, font=\tiny] at (6.0,0.85) {\textbf{LAND}};
+    \draw[draw=red, fill=red!20, rounded corners=1mm] (6.8,0.6) rectangle (7.8,1.1);
+    \node[color=red, font=\tiny] at (7.3,0.85) {\textbf{EMERGENCY}};
+\end{tikzpicture}
+}
+\caption{โครงสร้างเลย์เอาต์หน้าจอนักบิน Heads-Up Display และการซ้อนภาพเสมือนจริง}
+\label{fig:cockpit_hud}
+\end{figure}
+
+\section{ระบบคันโยกควบคุมเสมือนและระบบปรับสมดุล}
+
+การควบคุมการบินใช้มาตรฐาน Mode 2 ซึ่งเป็นมาตรฐานสากลของวงการอากาศยานไร้คนขับ โดยแบ่งหน้าที่ของคันโยกทั้งสองข้างอย่างชัดเจน
+\begin{enumerate}
+    \item \textbf{คันโยกซ้าย (Left Stick)} ควบคุมคันเร่งความสูง (Throttle) ในแนวแกนดิ่ง และการหมุนหันหัวเครื่อง (Yaw) ในแนวแกนราบ โดยคันเร่งจะคงตำแหน่งสุดท้ายไว้เมื่อปล่อยมือ เพื่อให้อากาศยานรักษาระดับความสูง
+    \item \textbf{คันโยกขวา (Right Stick)} ควบคุมการบินเดินหน้าถอยหลัง (Pitch) ในแนวแกนดิ่ง และการเอียงตัวบินไปทางซ้ายขวา (Roll) ในแนวแกนราบ ซึ่งออกแบบให้มีกลไกสปริงเสมือนเด้งกลับสู่จุดกึ่งกลางเสมอเมื่อผู้ใช้งานยกนิ้วขึ้น
+\end{enumerate}
+
+ระบบยังผนวกส่วนการปรับสมดุล \textbf{Digital Trim} เพื่อชดเชยการไหลเอียงของอากาศยานอันเนื่องมาจากลมภายนอกหรือความไม่สมดุลของใบพัด ทำให้สามารถบินรักษาสมดุลได้อย่างนิ่งสนิท
+
+\section{โหมดการแสดงผลหน้าจอคู่สำหรับงานเกษตรกรรม}
+
+เพื่อให้ผู้ใช้งานสามารถวิเคราะห์สุขภาพพืชพรรณไปพร้อมกับการบังคับการบิน ระบบจึงรองรับโหมดการแสดงผลหน้าจอคู่ \textbf{Split-Screen Cockpit Mode} โดยหน้าจอฝั่งซ้ายจะแสดงภาพสตรีมวิดีโอสดแบบมุมมองบุคคลที่หนึ่ง ในขณะที่หน้าจอฝั่งขวา ผู้ใช้งานสามารถเลือกสลับมุมมองได้ 3 รูปแบบ
+\begin{enumerate}
+    \item \textbf{แผนที่ความร้อนสเปกตรัมแบบทันท่วงที (Live Spectral Heatmap)} แสดงภาพแปลงพืชที่ผ่านการวิเคราะห์ดัชนี VARI หรือ Visible NDVI พร้อมการเน้นตำแหน่งต้นพืชที่มีอาการเครียดขาดน้ำ
+    \item \textbf{แผนที่การบินและขอบเขตแปลง (Survey Map and Geofence)} แสดงภาพมุมสูงของแปลงเกษตร พิกัดปัจจุบันของโดรน และแนวเส้นทางการบินสำรวจ
+    \item \textbf{แผงควบคุมระบบพ่นสารชีวภัณฑ์ (Precision Spraying Telemetry)} สำหรับควบคุมการเปิดปิดปั๊มพ่น การปรับความเร็วรอบมอเตอร์ปั๊มด้วยสัญญาณ PWM และการตรวจวัดอัตราการไหลของของเหลว
+\end{enumerate}
+
+\section{ระบบแจ้งเตือนความปลอดภัยและการสั่นสะเทือนตอบสนอง}
+
+ความปลอดภัยถือเป็นหัวใจสำคัญของการบินโดรนทางการเกษตร แอปพลิเคชันจึงได้รับการติดตั้งระบบตรวจสอบสภาวะวิกฤตพร้อมการสั่นสะเทือนตอบสนอง \textbf{Haptic Feedback} ผ่านกลไกมอเตอร์สั่นของสมาร์ทโฟน ดังแสดงในตารางที่ \ref{tab:safety_matrix}
+
+\begin{table}[H]
+\caption{เมทริกซ์สภาวะแจ้งเตือนความปลอดภัยและการตอบสนองของระบบ}
+\label{tab:safety_matrix}
+\begin{tabularx}{\textwidth}{p{3.2cm}p{3.0cm}p{3.5cm}Y}
+\toprule
+\textbf{สภาวะวิกฤต} & \textbf{เกณฑ์การตรวจจับ} & \textbf{การตอบสนองเชิงภาพและเสียง} & \textbf{รูปแบบการสั่นสะเทือน} \\
+\midrule
+แบตเตอรี่ต่ำวิกฤต & ปริมาณประจุต่ำกว่า 20\% & แถบสีแดงกะพริบพร้อมส่งเสียงเตือน & สั่นสะเทือนแบบหนักหน่วงต่อเนื่อง \\
+บินเกินเพดานความสูง & ระดับความสูงมากกว่า 30 เมตร & ข้อความเตือนขอบเขตจำกัดความสูง & สั่นสะเทือนแบบจังหวะปานกลาง \\
+กระแสลมกระโชกแรง & ความเร็วลมมากกว่า 8 เมตรต่อวินาที & ไอคอนแสดงสภาวะลมเปลี่ยนเป็นสีส้ม & สั่นเตือนเป็นจังหวะคู่ \\
+สัญญาณขาดหาย & ไม่ได้รับแพ็กเก็ตเกิน 2 วินาที & เปิดใช้งานโปรโตคอล Failsafe ลงจอด & สั่นสะเทือนแบบหนักหน่วงเตือนตัดระบบ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{การวางแผนเส้นทางบินอัตโนมัติและระบบกำหนดขอบเขตแปลง}
+
+หน้าจอการวางแผนการบิน \textbf{Flight Plan Screen} ช่วยให้เกษตรกรสามารถกำหนดขอบเขตแปลงเกษตรกรรมได้ด้วยการสัมผัสบนแผนที่ดาวเทียมเพื่อสร้างรูปหลายเหลี่ยมกำหนดเขต (Polygon Geofencing)
+
+เมื่อกำหนดขอบเขตแปลงแล้ว ระบบจะประมวลผลอัลกอริทึมสร้างแนวเส้นทางบินสำรวจอัตโนมัติแบบฟันปลา \textbf{Lawnmower Grid Pattern} ซึ่งจะคำนวณหาระยะห่างของแนวบินที่เหมาะสมกับมุมมองของเลนส์กล้อง เพื่อให้ได้ภาพถ่ายที่มีการซ้อนทับกัน (Front and Side Overlap) ไม่น้อยกว่าร้อยละ 60 ถึง 75 อันเป็นมาตรฐานที่จำเป็นสำหรับการนำภาพถ่ายทางอากาศไปทำแผนที่ภาพถ่ายออร์โธโมเสก
+
+\clearpage
+
+\section*{คำถามทบทวนท้ายบทที่ 2}
+\addcontentsline{toc}{section}{คำถามทบทวนท้ายบทที่ 2}
+
+\begin{enumerate}
+    \item จงอธิบายประโยชน์ของการใช้ CustomPainter ในการเรนเดอร์หน้าจอ HUD เทียบกับการใช้คอมโพเนนต์วิดเจ็ตมาตรฐานใน Flutter
+    \item เหตุใดการควบคุมโดรนในทิศทาง Throttle จึงไม่ควรใช้ระบบสปริงเด้งกลับสู่จุดกึ่งกลางแบบอัตโนมัติ
+    \item โหมดการแสดงผลหน้าจอคู่ Split-Screen มีประโยชน์ต่อการบริหารจัดการแปลงเกษตรแม่นยำอย่างไร
+    \item หากโดรนบินด้วยความเร็ว 3 เมตรต่อวินาที และแนวพ่นสารมีความกว้าง 2.5 เมตร จงคำนวณอัตราความเร็วในการครอบคลุมพื้นที่ต่อนาที
+\end{enumerate}
+
+\clearpage

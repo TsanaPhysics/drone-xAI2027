@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MAGIC Drone Agri-Vision Pro | ระบบควบคุมโดรนและวิเคราะห์ภาพถ่ายการเกษตรอัจฉริยะ</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;600;700&family=Orbitron:wght@500;700;900&family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Navigation & Status Bar -->
+    <header class="hud-header">
+      <div class="brand-section">
+        <img src="assets/icons/app_icon.png" alt="MAGIC Drone Logo" class="brand-logo-icon">
+        <div class="drone-pulse-indicator connected" id="networkPulse"></div>
+        <div class="brand-title">
+          <span class="cyber-highlight">MAGIC</span> DRONE AGRI-VISION
+          <span class="version-tag">PRO v2.7</span>
+        </div>
+      </div>
+
+      <div class="telemetry-bar">
+        <div class="telemetry-chip">
+          <span class="icon">📡</span>
+          <span class="label">DRONE IP:</span>
+          <span class="value" id="currentDroneIp">192.168.1.1:7070</span>
+        </div>
+        <div class="telemetry-chip">
+          <span class="icon">🔋</span>
+          <span class="label">BATT:</span>
+          <span class="value" id="droneBatt">87% (3.85V)</span>
+        </div>
+        <div class="telemetry-chip">
+          <span class="icon">📶</span>
+          <span class="label">WIFI:</span>
+          <span class="value" id="wifiSignal">-48 dBm</span>
+        </div>
+        <div class="telemetry-chip">
+          <span class="icon">🛰️</span>
+          <span class="label">STATUS:</span>
+          <span class="value flight-status" id="flightStateText">STANDBY / READY</span>
+        </div>
+      </div>
+
+      <div class="mode-toggles">
+        <button class="nav-tab active" id="tabCockpitBtn" onclick="switchTab('cockpit')">🎮 COCKPIT FPV</button>
+        <button class="nav-tab" id="tabAnalysisBtn" onclick="switchTab('analysis')">🌱 AGRI-ANALYSIS</button>
+        <button class="nav-tab" id="tabProtocolBtn" onclick="switchTab('protocol')">⚙️ PROTOCOL & LOG</button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="hud-main">
+      <!-- VIEW 1: COCKPIT & FPV HUD -->
+      <section class="view-panel active" id="cockpitView">
+        <div class="cockpit-grid">
+          <!-- Left Flight Controls (Throttle & Yaw) -->
+          <div class="control-pod pod-left">
+            <div class="pod-header">
+              <span>MODE 2 | LEFT STICK</span>
+              <span class="badge">THROTTLE / YAW</span>
+            </div>
+            
+            <div class="joystick-wrapper">
+              <div class="joystick-boundary" id="leftJoyBound">
+                <div class="joystick-crosshair"></div>
+                <div class="joystick-thumb" id="leftJoyThumb">
+                  <div class="thumb-glow"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="stick-values">
+              <div>THROTTLE: <span id="valThrottle">0%</span></div>
+              <div>YAW: <span id="valYaw">0°/s</span></div>
+            </div>
+
+            <div class="quick-flight-actions">
+              <button class="action-btn takeoff" id="takeoffBtn" onclick="handleTakeoff()">
+                🚀 TAKEOFF
+              </button>
+              <button class="action-btn land" id="landBtn" onclick="handleLand()">
+                🛬 LAND
+              </button>
+              <button class="action-btn emergency" id="emergencyBtn" onclick="handleEmergencyStop()">
+                🛑 EMERGENCY CUT
+              </button>
+            </div>
+          </div>
+
+          <!-- Center: FPV Video Stream & HUD Overlay -->
+          <div class="fpv-viewport-pod">
+            <div class="video-container" id="videoContainer">
+              <!-- Live Video Canvas or Simulated Farm Feed -->
+              <canvas id="fpvCanvas" width="960" height="540"></canvas>
+              
+              <!-- FPV HUD Canvas Overlay (Crosshairs, Artificial Horizon, Pitch ladder) -->
+              <canvas id="hudOverlayCanvas" width="960" height="540"></canvas>
+
+              <!-- Video Source Control Bar Overlay -->
+              <div class="fpv-overlay-bar">
+                <div class="stream-source-selector">
+                  <label>CAMERA STREAM:</label>
+                  <select id="videoSourceSelect" onchange="changeVideoSource(this.value)">
+                    <option value="farm_sim">🌾 จำลองภาพบินถ่ายแปลงเกษตร (Flight Simulation)</option>
+                    <option value="webcam">📷 ใช้กล้องเว็บแคม / USB Camera</option>
+                    <option value="custom_url">🌐 MJPEG Stream URL (โดรนตัวจริง)</option>
+                    <option value="upload">📁 อัปโหลดภาพนิ่ง/วิดีโอเพื่อทดสอบ</option>
+                  </select>
+                  <input type="text" id="streamUrlInput" placeholder="http://192.168.1.1:8080/?action=stream" style="display:none;">
+                  <button id="streamConnectBtn" style="display:none;" onclick="connectCustomStream()">เชื่อมต่อ</button>
+                  <input type="file" id="fileUploadInput" accept="image/*,video/*" style="display:none;" onchange="handleFileUpload(event)">
+                </div>
+
+                <div class="fpv-actions">
+                  <button class="hud-btn" onclick="captureSnapshotForAnalysis()" title="บันทึกภาพเพื่อส่งไปวิเคราะห์ดัชนีพืช">
+                    📸 CAPTURE & ANALYZE
+                  </button>
+                  <button class="hud-btn" id="recordBtn" onclick="toggleRecording()">
+                    🔴 REC FLIGHT
+                  </button>
+                  <button class="hud-btn" onclick="toggleHudGrid()">
+                    📐 GRID ON/OFF
+                  </button>
+                </div>
+              </div>
+
+              <!-- Artificial Horizon / Pitch Info Overlay -->
+              <div class="flight-data-overlay left">
+                <div class="data-row"><span>ALT:</span> <b id="hudAlt">12.4 m</b></div>
+                <div class="data-row"><span>SPD:</span> <b id="hudSpeed">3.2 m/s</b></div>
+                <div class="data-row"><span>DIST:</span> <b id="hudDist">48 m</b></div>
+              </div>
+
+              <div class="flight-data-overlay right">
+                <div class="data-row"><span>ROLL:</span> <b id="hudRoll">0.0°</b></div>
+                <div class="data-row"><span>PITCH:</span> <b id="hudPitch">0.0°</b></div>
+                <div class="data-row"><span>FPS:</span> <b id="hudFps">30.0</b></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Flight Controls (Pitch & Roll) -->
+          <div class="control-pod pod-right">
+            <div class="pod-header">
+              <span>MODE 2 | RIGHT STICK</span>
+              <span class="badge">PITCH / ROLL</span>
+            </div>
+
+            <div class="joystick-wrapper">
+              <div class="joystick-boundary" id="rightJoyBound">
+                <div class="joystick-crosshair"></div>
+                <div class="joystick-thumb" id="rightJoyThumb">
+                  <div class="thumb-glow"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="stick-values">
+              <div>PITCH: <span id="valPitch">0%</span></div>
+              <div>ROLL: <span id="valRoll">0%</span></div>
+            </div>
+
+            <div class="trim-controls">
+              <div class="trim-title">FINE FLIGHT TRIMS (ปรับสมดุลใบพัด)</div>
+              <div class="trim-grid">
+                <button onclick="adjustTrim('pitch', 1)">▲ P-TRIM</button>
+                <button onclick="adjustTrim('pitch', -1)">▼ P-TRIM</button>
+                <button onclick="adjustTrim('roll', -1)">◄ R-TRIM</button>
+                <button onclick="adjustTrim('roll', 1)">► R-TRIM</button>
+              </div>
+              <div class="trim-status">TRIM P: <span id="trimP">0</span> | R: <span id="trimR">0</span></div>
+            </div>
+
+            <div class="drone-packet-box">
+              <div class="packet-title">UDP 20Hz HEX PACKET:</div>
+              <div class="packet-hex" id="liveHexPacket">66 80 80 80 80 00 20 99</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: PRECISION AGRICULTURE IMAGE ANALYSIS STUDIO -->
+      <section class="view-panel" id="analysisView">
+        <div class="analysis-layout">
+          <!-- Left: Image Viewer & Layer Toggle -->
+          <div class="analysis-canvas-card">
+            <div class="card-header">
+              <div class="card-title">
+                <span>🛰️ MULTI-SPECTRAL VEGETATION SCANNER</span>
+                <span class="sub" id="scanTimestamp">LIVE FEED CAPTURE</span>
+              </div>
+              <div class="analysis-tabs">
+                <button class="filter-tab active" onclick="setAnalysisFilter('rgb')">RGB ธรรมชาติ</button>
+                <button class="filter-tab" onclick="setAnalysisFilter('vari')">VARI Index (ดัชนีเขียว)</button>
+                <button class="filter-tab" onclick="setAnalysisFilter('gli')">GLI (Green Leaf Index)</button>
+                <button class="filter-tab" onclick="setAnalysisFilter('exg')">ExG (Excess Green)</button>
+                <button class="filter-tab" onclick="setAnalysisFilter('ndvi_vis')">NDVI Visible Heatmap</button>
+                <button class="filter-tab" onclick="setAnalysisFilter('canopy_mask')">Mask ทรงพุ่มพืช</button>
+              </div>
+            </div>
+
+            <div class="analysis-viewport-box">
+              <canvas id="analysisCanvas" width="800" height="500"></canvas>
+              
+              <!-- Colorbar Legend -->
+              <div class="spectral-legend" id="spectralLegend">
+                <span class="label-low">-1.0 (ดิน/แห้งแล้ง)</span>
+                <div class="legend-gradient"></div>
+                <span class="label-high">+1.0 (สมบูรณ์สูง/ใบเขียวจัด)</span>
+              </div>
+            </div>
+
+            <div class="analysis-toolbar">
+              <div class="param-slider-group">
+                <label>Threshold ความเขียวพืช (Canopy Sensitivity): <b id="lblThreshold">0.12</b></label>
+                <input type="range" id="sensitivitySlider" min="0.01" max="0.5" step="0.01" value="0.12" oninput="updateSensitivity(this.value)">
+              </div>
+              <div class="export-btns">
+                <button class="tool-btn" onclick="exportAnalysisReport()">📄 ส่งออกรายงาน PDF / สรุปผล</button>
+                <button class="tool-btn" onclick="exportAnalysisImage()">💾 บันทึกภาพ Heatmap</button>
+                <button class="tool-btn" onclick="exportCsvData()">📊 ดาวน์โหลดข้อมูล CSV</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Precision Agri Analytics & Health Scorecard -->
+          <div class="analysis-summary-card">
+            <div class="summary-header">
+              <h3>📊 รายงานการประเมินสุขภาพแปลงพืช</h3>
+              <span class="agro-batch" id="farmAreaId">PLOT: ZONE-A (ส้มโอ/ทุเรียน/มันสำปะหลัง)</span>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-box success">
+                <div class="val" id="metricCanopy">72.4%</div>
+                <div class="lbl">สัดส่วนพื้นที่ทรงพุ่ม (Canopy Cover)</div>
+              </div>
+              <div class="metric-box info">
+                <div class="val" id="metricMeanVari">0.38</div>
+                <div class="lbl">ค่าเฉลี่ยดัชนี VARI (-1 ถึง +1)</div>
+              </div>
+              <div class="metric-box primary">
+                <div class="val" id="metricHealthGrade">เกรด A</div>
+                <div class="lbl">ระดับความสมบูรณ์โดยรวม</div>
+              </div>
+              <div class="metric-box warning">
+                <div class="val" id="metricStressArea">5.8%</div>
+                <div class="lbl">จุดที่มีภาวะเครียด/ขาดน้ำ/ขาดปุ๋ย</div>
+              </div>
+            </div>
+
+            <!-- Health Breakdown Chart / Bars -->
+            <div class="chart-section">
+              <h4>การกระจายตัวของสุขภาพพืช (Vegetation Health Distribution)</h4>
+              
+              <div class="health-breakdown-bar">
+                <div class="segment high" id="barHealthy" style="width: 68%;" title="สมบูรณ์ดีมาก (High Chlorophyll)">68%</div>
+                <div class="segment med" id="barModerate" style="width: 20%;" title="สมบูรณ์ปานกลาง">20%</div>
+                <div class="segment low" id="barStressed" style="width: 6%;" title="พืชแคระแกร็น/เครียด">6%</div>
+                <div class="segment nonveg" id="barSoil" style="width: 6%;" title="ผิวดิน/ทางเดิน">6%</div>
+              </div>
+
+              <div class="legend-row">
+                <span class="dot high"></span> เขียวสมบูรณ์สูง (&gt;0.25)
+                <span class="dot med"></span> ปานกลาง (0.08 - 0.25)
+                <span class="dot low"></span> เครียด/ขาดสารอาหาร (&lt;0.08)
+                <span class="dot nonveg"></span> ดิน/สิ่งก่อสร้าง
+              </div>
+            </div>
+
+            <!-- Agronomist Actionable Recommendations -->
+            <div class="agri-recommendations">
+              <h4>คำแนะนำเชิงการจัดการเกษตรแม่นยำ:</h4>
+              <ul id="recommendationList">
+                <li>✅ แปลงส่วนใหญ่ (68%) มีคลอโรฟิลล์หนาแน่น สังเคราะห์แสงได้สมบูรณ์</li>
+                <li>⚠️ ตรวจพบหย่อมพืชเครียด 5.8% ในพิกัดพุ่มด้านขวาบน แนะนำตรวจสอบระบบน้ำหยดและการอุดตัน</li>
+                <li>💧 สัดส่วนดินเปิดโล่ง 6% เหมาะสมแก่การคลุมฟางรักษาความชื้นรอบโคนต้น</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: PROTOCOL ANALYZER & HARDWARE WIRING -->
+      <section class="view-panel" id="protocolView">
+        <div class="protocol-grid">
+          <div class="protocol-card">
+            <h3>📡 เครื่องมือค้นหาและตรวจจับโปรโตคอลโดรน MAGIC (Auto Protocol Detector)</h3>
+            <p class="desc">
+              ระบบนี้ส่ง Probe Packet สแกน IP และ Port มาตรฐานของโดรนชิปเซ็ต WiFi ยอดนิยม (RTL8188, HiSilicon, ESP32, Allwinner)
+            </p>
+            
+            <div class="scanner-box">
+              <div class="input-row">
+                <label>เป้าหมาย IP Subnet:</label>
+                <input type="text" id="scanSubnetInput" value="192.168.1.1">
+                <label>Protocol Preset:</label>
+                <select id="protocolPresetSelect">
+                  <option value="MAGIC_8BYTE">MAGIC / KY-Toy 8-Byte (0x66 ... 0x99, Port 7070)</option>
+                  <option value="WIFI_UFO_6BYTE">WiFi-UFO 6-Byte (Port 8888)</option>
+                  <option value="TELLO_ASCII">Tello ASCII SDK (Port 8889)</option>
+                  <option value="CUSTOM">Custom UDP Sockets</option>
+                </select>
+                <button class="action-btn-small" onclick="runAutoProtocolScan()">🔍 SCAN DRONE</button>
+              </div>
+
+              <div class="scan-result-log" id="scanResultLog">
+[00:00.00] Ready to scan Magic Drone AP...
+[00:00.01] Detected Default Gateway: 192.168.1.1
+[00:00.02] Probing UDP 192.168.1.1:7070 (MAGIC / KY Protocol)... RESPONDED!
+[00:00.03] Video Stream RTSP/MJPEG Endpoint: http://192.168.1.1:8080/?action=stream
+[00:00.04] Status: LINK ESTABLISHED WITH MAGIC MINI QUADCOPTER
+              </div>
+            </div>
+
+            <div class="packet-spec-table">
+              <h4>โครงสร้าง Packet คำสั่ง 8-Byte สำหรับโดรน MAGIC:</h4>
+              <table class="hud-table">
+                <thead>
+                  <tr><th>Byte</th><th>ความหมาย</th><th>ช่วงค่า (Hex/Dec)</th><th>คำอธิบาย</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>0</td><td>Header</td><td>0x66</td><td>Start of frame</td></tr>
+                  <tr><td>1</td><td>Roll (ซ้าย-ขวา)</td><td>0x00 - 0xFF (กลาง 0x80)</td><td>0x00 = ซ้ายสุด, 0xFF = ขวาสุด</td></tr>
+                  <tr><td>2</td><td>Pitch (หน้า-หลัง)</td><td>0x00 - 0xFF (กลาง 0x80)</td><td>0x00 = หลังสุด, 0xFF = หน้าสุด</td></tr>
+                  <tr><td>3</td><td>Throttle (ยกตัว)</td><td>0x00 - 0xFF (กลาง 0x80)</td><td>0x00 = ต่ำสุด, 0xFF = สูงสุด</td></tr>
+                  <tr><td>4</td><td>Yaw (หมุนหัว)</td><td>0x00 - 0xFF (กลาง 0x80)</td><td>0x00 = หมุนซ้าย, 0xFF = หมุนขวา</td></tr>
+                  <tr><td>5</td><td>Command Flags</td><td>0x00 / 0x01 / 0x02</td><td>0x01 = Takeoff, 0x02 = Land, 0x04 = Flip</td></tr>
+                  <tr><td>6</td><td>Checksum (XOR)</td><td>0x00 - 0xFF</td><td>Byte 1 ^ Byte 2 ^ Byte 3 ^ Byte 4 ^ Byte 5</td></tr>
+                  <tr><td>7</td><td>Footer</td><td>0x99</td><td>End of frame</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="protocol-card">
+            <h3>📱 สถาปัตยกรรมแอปพลิเคชัน Flutter (Flutter Mobile App Architecture)</h3>
+            <div class="flutter-arch-diagram">
+              <div class="arch-box">
+                <b>1. Hardware Layer:</b><br>
+                MAGIC Drone WiFi AP (192.168.1.1) ➔ UDP 7070 & MJPEG 8080
+              </div>
+              <div class="arch-arrow">⬇ UDP & HTTP Stream</div>
+              <div class="arch-box">
+                <b>2. Dart Services Layer:</b><br>
+                • <code>DroneUdpService</code>: 20Hz Heartbeat, XOR Checksum, Safety Cut<br>
+                • <code>StreamDecoderService</code>: HttpChunked / MJPEG Frame Buffer<br>
+                • <code>AgriVisionService</code>: Pure Dart VARI, GLI, ExG & Canopy Mask
+              </div>
+              <div class="arch-arrow">⬇ Reactive State Management (ChangeNotifier / BLoC)</div>
+              <div class="arch-box">
+                <b>3. Presentation Layer:</b><br>
+                • <code>HudCockpitScreen</code>: Dual Virtual Joysticks & Telemetry<br>
+                • <code>AgriAnalysisScreen</code>: False-color NDVI Heatmap & Crop Yield Stats<br>
+                • <code>FlightSurveyScreen</code>: Waypoint Grid Mission Logger
+              </div>
+            </div>
+
+            <div class="quick-code-snippet">
+              <b>ตัวอย่างโค้ดคำนวณ VARI Index ในภาษา Dart:</b>
+              <pre><code>double computeVARI(int r, int g, int b) {
+  // VARI = (Green - Red) / (Green + Red - Blue)
+  double num = (g - r).toDouble();
+  double den = (g + r - b).toDouble();
+  if (den == 0) return 0.0;
+  return (num / den).clamp(-1.0, 1.0);
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Flight Log & Notification Ticker -->
+    <footer class="hud-footer">
+      <div class="log-indicator">
+        <span class="pulse"></span> <b>FLIGHT TELEMETRY LOG:</b>
+      </div>
+      <div class="log-ticker" id="logTicker">
+        System initialized. Ready for drone pairing. Left stick controls Altitude/Heading; Right stick controls Forward/Backward/Strafe.
+      </div>
+      <div class="emergency-link">
+        <button onclick="calibrateGyro()">⚖️ CALIBRATE GYRO</button>
+      </div>
+    </footer>
+  </div>
+
+  <script src="js/drone_engine.js"></script>
+  <script src="js/agri_vision.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

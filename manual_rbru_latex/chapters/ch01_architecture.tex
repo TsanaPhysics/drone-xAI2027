@@ -1,0 +1,173 @@
+\chapter{สถาปัตยกรรมระบบโดรนและเครือข่ายสื่อสารไร้สาย}
+\label{chap:ch01}
+
+% --- หน้าที่ 1 ของบท: แผนบริหารการสอน (กล่อง 1 และ 2) ---
+\section*{แผนบริหารการสอนประจำบทที่ 1}
+\addcontentsline{toc}{section}{แผนบริหารการสอนประจำบทที่ 1}
+
+\begin{planbox}{หัวข้อเนื้อหาประจำบท}
+\begin{enumerate}
+    \item โครงสร้างฮาร์ดแวร์และระบบขับเคลื่อนของโดรน MAGIC
+    \item โปรโตคอลการสื่อสารข้อมูลแบบ UDP Datagram ความถี่สูง
+    \item โครงสร้างแพ็กเก็ตควบคุมการบินและสมการตรวจสอบความถูกต้อง Checksum
+    \item สถาปัตยกรรมการสตรีมภาพความเร็วสูงผ่าน MJPEG และการถ่ายภาพนิ่ง
+\end{enumerate}
+\end{planbox}
+
+\begin{planbox}{วัตถุประสงค์เชิงพฤติกรรม}
+\begin{enumerate}
+    \item อธิบายหลักการทำงานของฮาร์ดแวร์และบอร์ดควบคุมการบินของโดรนได้อย่างถูกต้อง
+    \item วิเคราะห์การทำงานของโปรโตคอล UDP Datagram Socket ที่ความถี่ 20 เฮิรตซ์ได้อย่างแม่นยำ
+    \item คำนวณค่าผลรวมตรวจสอบความถูกต้องแบบ XOR Checksum ของแพ็กเก็ตควบคุมได้อย่างสมบูรณ์
+    \item เชื่อมต่อและดึงข้อมูลสตรีมวิดีโอจากกล้องของโดรนผ่านช่องทาง HTTP ได้อย่างมีประสิทธิภาพ
+\end{enumerate}
+\end{planbox}
+
+\newpage
+
+% --- หน้าที่ 2 ของบท: แผนบริหารการสอน (กล่อง 3, 4, 5) ---
+\begin{planbox}{วิธีสอนและกิจกรรมการเรียนการสอน}
+\begin{enumerate}
+    \item การบรรยายเชิงทฤษฎีประกอบการสาธิตโครงสร้างฮาร์ดแวร์และการเชื่อมต่อเครือข่ายไร้สาย
+    \item การทดลองจำลองการส่งผ่านแพ็กเก็ตข้อมูล UDP ผ่านโปรแกรม Wireshark บนระบบจำลอง
+    \item การฝึกปฏิบัติตรวจสอบรหัสไบต์ฐานสิบหกแบบทันท่วงทีบนจอจำลองการบิน
+    \item การอภิปรายกลุ่มย่อยเกี่ยวกับการลดทอนเวลาหน่วงในการควบคุมอากาศยานไร้คนขับ
+\end{enumerate}
+\end{planbox}
+
+\begin{planbox}{สื่อการเรียนการสอน}
+\begin{enumerate}
+    \item เอกสารคำสอนและคู่มือปฏิบัติการระบบควบคุมโดรนอัจฉริยะ
+    \item โดรนขนาดเล็กสำหรับทดสอบระบบพร้อมสถานีฐานจำลองเครือข่ายไร้สาย
+    \item สื่อนำเสนอภาพนิ่งและภาพเคลื่อนไหวแสดงโครงสร้างแพ็กเก็ตและรูปแบบข้อมูล
+    \item ซอฟต์แวร์วิเคราะห์เครือข่าย Wireshark และระบบจำลองบนเว็บเบราว์เซอร์
+\end{enumerate}
+\end{planbox}
+
+\begin{planbox}{การวัดและประเมินผล}
+\begin{enumerate}
+    \item การประเมินความรู้ความเข้าใจจากแบบทดสอบย่อยและการตอบคำถามในชั้นเรียน
+    \item การประเมินทักษะการปฏิบัติการสร้างแพ็กเก็ตข้อมูลและคำนวณ Checksum
+    \item การประเมินผลสัมฤทธิ์จากรายงานผลการทดลองและการสังเกตพฤติกรรมการมีส่วนร่วม
+\end{enumerate}
+\end{planbox}
+
+\clearpage
+
+% --- หน้าที่ 3 เป็นต้นไป: เนื้อหาวิชาการ ---
+\section{โครงสร้างฮาร์ดแวร์และระบบขับเคลื่อนของโดรน}
+
+อากาศยานไร้คนขับสำหรับการเกษตรขนาดพกพา (Pocket Agricultural Drone) หรือโดรนรุ่น MAGIC เป็นระบบอากาศยานสี่ใบพัด (Quadcopter) ที่ได้รับการออกแบบให้มีน้ำหนักเบาและมีความคล่องตัวสูง โดยมีองค์ประกอบพื้นฐานประกอบด้วย โครงสร้างลำตัวเครื่องผลิตจากวัสดุโพลีเมอร์ทนแรงกระแทก มอเตอร์กระแสตรงชนิดไร้แกนเหล็ก (Coreless DC Motor) ทำงานร่วมกับใบพัดขนาดเล็ก แบตเตอรี่ลิเทียมพอลิเมอร์แรงดัน 3.7 ถึง 7.4 โวลต์ และแผงวงจรควบคุมหลักที่ผสานหน่วยประมวลผล หน่วยวัดความเฉื่อย (Inertial Measurement Unit หรือ IMU) เซนเซอร์วัดแรงดันบรรยากาศเพื่อรักษาระดับความสูง และโมดูลสื่อสารไร้สาย Wi-Fi ไว้บนแผงวงจรพิมพ์แผ่นเดียว
+
+\begin{figure}[H]
+\centering
+\resizebox{0.86\textwidth}{!}{
+\begin{tikzpicture}[node distance=1.8cm, auto, >=Stealth]
+    % Drone Controller Node
+    \node [draw=rbruNavy, fill=rbruNavy!10, rounded corners=3mm, line width=1.5pt, minimum width=4cm, minimum height=2.5cm, align=center] (fc) {
+        \textbf{Flight Controller Unit}\par
+        หน่วยประมวลผลหลัก (MCU)\par
+        IMU 6-Axis (Gyro + Accel)\par
+        Barometer Altitude Sensor
+    };
+    
+    % Motors
+    \node [draw=agriGreen, fill=agriGreen!15, circle, line width=1.2pt, minimum size=1.8cm, align=center, above left=1.2cm and 1.8cm of fc] (m1) {\textbf{M1}\par CW};
+    \node [draw=agriGreen, fill=agriGreen!15, circle, line width=1.2pt, minimum size=1.8cm, align=center, above right=1.2cm and 1.8cm of fc] (m2) {\textbf{M2}\par CCW};
+    \node [draw=agriGreen, fill=agriGreen!15, circle, line width=1.2pt, minimum size=1.8cm, align=center, below left=1.2cm and 1.8cm of fc] (m3) {\textbf{M3}\par CCW};
+    \node [draw=agriGreen, fill=agriGreen!15, circle, line width=1.2pt, minimum size=1.8cm, align=center, below right=1.2cm and 1.8cm of fc] (m4) {\textbf{M4}\par CW};
+
+    % Connections
+    \draw [->, line width=1.2pt, color=agriGreen] (fc) -- (m1) node [midway, above left] {\footnotesize PWM};
+    \draw [->, line width=1.2pt, color=agriGreen] (fc) -- (m2) node [midway, above right] {\footnotesize PWM};
+    \draw [->, line width=1.2pt, color=agriGreen] (fc) -- (m3) node [midway, below left] {\footnotesize PWM};
+    \draw [->, line width=1.2pt, color=agriGreen] (fc) -- (m4) node [midway, below right] {\footnotesize PWM};
+
+    % WiFi AP Module
+    \node [draw=agriCyan, fill=agriCyan!15, rounded corners=2mm, line width=1.2pt, right=2.2cm of fc, align=center] (wifi) {
+        \textbf{Wi-Fi SoftAP Module}\par
+        คลื่นความถี่ 2.4 GHz\par
+        IP 192.168.1.1
+    };
+    \draw [<->, line width=1.5pt, color=agriCyan] (fc) -- (wifi) node [midway, above] {\footnotesize UART};
+
+    % Mobile App
+    \node [draw=rbruGold, fill=rbruGold!20, rounded corners=2mm, line width=1.2pt, right=2.0cm of wifi, align=center] (app) {
+        \textbf{Flutter GCS App}\par
+        สมาร์ทโฟน / แท็บเล็ต\par
+        IP 192.168.1.2
+    };
+    \draw [<->, line width=1.5pt, dashed, color=rbruGold] (wifi) -- (app) node [midway, above] {\footnotesize UDP / HTTP};
+\end{tikzpicture}
+}
+\caption{สถาปัตยกรรมฮาร์ดแวร์และการเชื่อมต่อไร้สายของโดรนการเกษตรขนาดเล็ก}
+\label{fig:drone_hardware}
+\end{figure}
+
+การควบคุมทิศทางการเคลื่อนที่ของอากาศยานสี่ใบพัดอาศัยหลักการทางฟิสิกส์ว่าด้วยแรงยกและโมเมนต์แรงบิด โดยมอเตอร์สองตัวที่อยู่แนวทแยงกันจะหมุนตามเข็มนาฬิกา ในขณะที่มอเตอร์อีกสองตัวจะหมุนทวนเข็มนาฬิกา เพื่อสร้างสมดุลของโมเมนต์แรงบิดรอบแกนดิ่ง ทำให้โดรนสามารถลอยตัวนิ่งได้อย่างมีเสถียรภาพ
+
+\section{โปรโตคอลการสื่อสารข้อมูลแบบยูดีพีความถี่สูง}
+
+ในการควบคุมอากาศยานไร้คนขับ ปัจจัยด้านเวลาหน่วง (Latency) มีความสำคัญสูงสุด หากเกิดความล่าช้าในการส่งผ่านคำสั่ง อากาศยานอาจสูญเสียการทรงตัวหรือเกิดอุบัติเหตุได้ ระบบควบคุมจึงเลือกใช้โปรโตคอล \textbf{User Datagram Protocol (หรือ UDP)} แทนโปรโตคอล TCP
+
+ข้อได้เปรียบที่สำคัญของโปรโตคอล UDP ประกอบด้วย
+\begin{enumerate}
+    \item ไม่ต้องมีการตอบรับยืนยันแพ็กเก็ต (No Handshake Overhead) ทำให้การส่งข้อมูลใช้เวลาในระดับไมโครวินาที
+    \item ทำงานในรูปแบบส่งแล้วลืม (Connectionless Datagram) ซึ่งหากมีข้อมูลสูญหายระหว่างทาง ระบบจะไม่เสียเวลาส่งซ้ำ แต่จะรับข้อมูลชุดใหม่ที่มีความสดใหม่กว่าทันที
+    \item ส่งข้อมูลคำสั่งอย่างต่อเนื่องที่ความถี่ 20 เฮิรตซ์ หรือทุกรอบระยะเวลา 50 มิลลิวินาที ส่งผลให้อากาศยานได้รับการสั่งการที่ต่อเนื่องและราบรื่น
+\end{enumerate}
+
+\section{โครงสร้างแพ็กเก็ตควบคุมการบินและสมการผลรวมตรวจสอบ}
+
+ข้อมูลคำสั่งการบินถูกบรรจุลงในโครงสร้างแพ็กเก็ตข้อมูลไบนารีมาตรฐานความยาวคงที่ 8 ไบต์ ดังแสดงในรายละเอียดตารางที่ \ref{tab:packet_structure}
+
+\begin{table}[H]
+\caption{โครงสร้างแพ็กเก็ตข้อมูลควบคุมการบินขนาด 8 ไบต์}
+\label{tab:packet_structure}
+\begin{tabularx}{\textwidth}{p{1.8cm}p{3.8cm}p{2.8cm}Y}
+\toprule
+\textbf{ไบต์ที่} & \textbf{ชื่อพารามิเตอร์} & \textbf{ช่วงค่าตัวเลข} & \textbf{บทบาทหน้าที่และการควบคุม} \\
+\midrule
+0 & รหัสเริ่มต้น (Header) & \texttt{0x66} (102) & กำหนดจุดเริ่มต้นแพ็กเก็ตคงที่ \\
+1 & Roll (เอียงซ้ายขวา) & \texttt{0x00} ถึง \texttt{0xFF} & จุดกึ่งกลางคือ \texttt{0x80} ค่าต่ำเอียงซ้าย ค่าสูงเอียงขวา \\
+2 & Pitch (เดินหน้าถอยหลัง) & \texttt{0x00} ถึง \texttt{0xFF} & จุดกึ่งกลางคือ \texttt{0x80} ค่าต่ำถอยหลัง ค่าสูงเดินหน้า \\
+3 & Throttle (คันเร่งความสูง) & \texttt{0x00} ถึง \texttt{0xFF} & \texttt{0x00} ดับเครื่องยนต์ และ \texttt{0xFF} กำลังบินสูงสุด \\
+4 & Yaw (การหมุนหัวโดรน) & \texttt{0x00} ถึง \texttt{0xFF} & จุดกึ่งกลางคือ \texttt{0x80} ค่าต่ำหมุนซ้าย ค่าสูงหมุนขวา \\
+5 & ธงคำสั่ง (Command Flags) & บิตแมสก์เฉพาะ & \texttt{0x01} สั่ง Takeoff, \texttt{0x02} สั่ง Land, \texttt{0x04} Emergency \\
+6 & ผลรวมตรวจสอบ (Checksum) & \texttt{0x00} ถึง \texttt{0xFF} & ค่าคำนวณการดำเนินการทางตรรกศาสตร์ XOR \\
+7 & รหัสปิดท้าย (Footer) & \texttt{0x99} (153) & กำหนดจุดสิ้นสุดแพ็กเก็ตคงที่ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+ในการตรวจสอบความถูกต้องของข้อมูลที่ส่งผ่านคลื่นวิทยุ ตัวควบคุมจะคำนวณผลรวมตรวจสอบ Checksum ด้วยการดำเนินการ XOR แบบบิตต่อบิต ระหว่างไบต์ที่ 1 ถึงไบต์ที่ 5 ตามความสัมพันธ์
+
+\begin{formulabox}[สมการคำนวณผลรวมตรวจสอบ XOR Checksum]
+\begin{equation}
+\text{Checksum} = \text{Roll} \oplus \text{Pitch} \oplus \text{Throttle} \oplus \text{Yaw} \oplus \text{Flags}
+\label{eq:checksum}
+\end{equation}
+โดยที่สัญลักษณ์ $\oplus$ หมายถึงการดำเนินการทางตรรกศาสตร์ Exclusive-OR ในระดับไบต์
+\end{formulabox}
+
+หากแผงวงจรควบคุมของโดรนคำนวณค่า Checksum ของข้อมูลที่ได้รับแล้วไม่ตรงกับค่าในไบต์ที่ 6 โดรนจะปฏิเสธแพ็กเก็ตนั้นทันทีเพื่อป้องกันการทำงานผิดพลาดจากสัญญาณรบกวนในอากาศ
+
+\section{สถาปัตยกรรมการสตรีมภาพความเร็วสูงและการถ่ายภาพนิ่ง}
+
+กล้องความละเอียดสูงที่ติดตั้งบริเวณส่วนหน้าของโดรน ทำหน้าที่ส่งสัญญาณภาพมุมมองบุคคลที่หนึ่ง (First Person View หรือ FPV) กลับมายังสถานีควบคุมภาคพื้นดิน โดยอาศัยเทคโนโลยี Motion JPEG (หรือ MJPEG) ผ่านโปรโตคอล HTTP
+
+สัญญาณวิดีโอถูกส่งผ่านช่องทางเครือข่าย \url{http://192.168.1.1:8080/?action=stream} ซึ่งประกอบด้วยภาพถ่ายนิ่งชนิด JPEG ส่งต่อเนื่องด้วยความเร็ว 25 ถึง 30 เฟรมต่อวินาที ในขณะที่การสั่งบันทึกภาพถ่ายความละเอียดสูงเพื่อนำไปวิเคราะห์ดัชนีพืชพรรณทางการเกษตร จะส่งคำขอแบบ HTTP GET ไปยังช่องทาง \url{http://192.168.1.1:8080/?action=snapshot} ซึ่งตัวกล้องจะส่งข้อมูลไบต์ภาพถ่ายความคมชัดสูงกลับมาประมวลผลทันที
+
+\clearpage
+
+\section*{คำถามทบทวนท้ายบทที่ 1}
+\addcontentsline{toc}{section}{คำถามทบทวนท้ายบทที่ 1}
+
+\begin{enumerate}
+    \item จงอธิบายเหตุผลทางฟิสิกส์และระบบเครือข่ายว่าเหตุใดระบบควบคุมอากาศยานไร้คนขับจึงเลือกใช้โปรโตคอล UDP มากกว่าโปรโตคอล TCP
+    \item หากต้องการสั่งให้อากาศยานไร้คนขับบินเดินหน้าด้วยความเร็วสูงสุด พร้อมรักษาระดับความสูงไว้ที่กึ่งกลาง จงเขียนรหัสไบต์ฐานสิบหกของแพ็กเก็ตข้อมูลทั้ง 8 ไบต์ให้สมบูรณ์
+    \item จงคำนวณค่า Checksum ของแพ็กเก็ตควบคุมที่มีค่า Roll เท่ากับ 128, Pitch เท่ากับ 200, Throttle เท่ากับ 150, Yaw เท่ากับ 128 และ Command Flags เท่ากับ 1
+    \item สตรีมวิดีโอแบบ MJPEG มีข้อดีและข้อจำกัดอย่างไรในการนำมาประมวลผลการเกษตรแม่นยำเมื่อเปรียบเทียบกับรูปแบบ RTSP
+\end{enumerate}
+
+\clearpage

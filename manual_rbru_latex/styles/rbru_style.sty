@@ -1,0 +1,262 @@
+\ProvidesPackage{styles/rbru_style}[2026/10/03 RBRU Academic Textbook & Manual Style - Dr. Chewa Thassana]
+
+% 1. Page Geometry (Strict RBRU Standard: Left 1.5 in, Top 1.5 in, Right 1.0 in, Bottom 1.0 in)
+\RequirePackage{geometry}
+\geometry{
+    a4paper,
+    top=38.1mm,      % 1.5 นิ้ว
+    bottom=25.4mm,   % 1.0 นิ้ว
+    left=38.1mm,     % 1.5 นิ้ว สำหรับเข้าเล่ม
+    right=25.4mm,    % 1.0 นิ้ว
+    headheight=22pt,
+    headsep=18pt,
+    footskip=20pt
+}
+
+% 2. Font & Thai Language Engine (XeLaTeX)
+\RequirePackage{fontspec}
+\RequirePackage{xunicode}
+\RequirePackage{xltxtra}
+\defaultfontfeatures{Mapping=tex-text}
+
+\setmainfont{Sarabun}[
+    Scale = 1.18
+]
+
+\XeTeXlinebreaklocale "th_TH"
+\XeTeXlinebreakskip = 0pt plus 2pt minus 0.5pt
+\setlength{\emergencystretch}{2.5em}
+
+% 3. Indentation & Spacing (1 Tab = 1.25 cm)
+\RequirePackage{indentfirst}
+\setlength{\parindent}{1.25cm}
+\setlength{\parskip}{4pt plus 1pt minus 1pt}
+
+% 4. Color Palette (RBRU Academic Signature Colors)
+\RequirePackage[table,xcdraw]{xcolor}
+\definecolor{rbruNavy}{HTML}{0D233A}
+\definecolor{rbruGold}{HTML}{D4AF37}
+\definecolor{rbruSlate}{HTML}{2C3E50}
+\definecolor{agriGreen}{HTML}{1B5E20}
+\definecolor{agriLightGreen}{HTML}{4CAF50}
+\definecolor{agriCyan}{HTML}{00838F}
+\definecolor{agriYellow}{HTML}{F57F17}
+\definecolor{rbruCodeBg}{HTML}{F4F6F9}
+\definecolor{rbruBorder}{HTML}{D1D5DB}
+
+% 5. Math & Symbols
+\RequirePackage{amsmath}
+\RequirePackage{amsfonts}
+\RequirePackage{amssymb}
+\RequirePackage{mathtools}
+
+% 6. Tables & Floats
+\RequirePackage{booktabs}
+\RequirePackage{tabularx}
+\RequirePackage{float}
+\RequirePackage{needspace}
+\RequirePackage[section]{placeins}
+\RequirePackage{array}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+
+% 7. Captions (100% Thai Enforcement, Label Bold, Title Normal, No Colons, Quad Separator)
+\RequirePackage{caption}
+\DeclareCaptionLabelSeparator{thaisep}{\quad}
+\captionsetup{labelsep=thaisep}
+\captionsetup[table]{
+    position=top,
+    skip=6pt,
+    labelfont={bf,color=rbruNavy},
+    textfont={normalfont},
+    labelsep=thaisep,
+    justification=raggedleft,
+    singlelinecheck=false
+}
+\captionsetup[figure]{
+    position=bottom,
+    skip=8pt,
+    labelfont={bf,color=rbruNavy},
+    textfont={normalfont},
+    labelsep=thaisep,
+    justification=centering
+}
+
+\renewcommand{\figurename}{\mbox{ภาพที่}}
+\renewcommand{\tablename}{\mbox{ตารางที่}}
+
+\AtBeginDocument{
+    \gdef\figurename{\mbox{ภาพที่}}
+    \gdef\tablename{\mbox{ตารางที่}}
+    \captionsetup[figure]{name={\mbox{ภาพที่}}}
+    \captionsetup[table]{name={\mbox{ตารางที่}}}
+}
+
+% 8. Graphicx & TikZ
+\RequirePackage{graphicx}
+\RequirePackage{tikz}
+\usetikzlibrary{shapes,arrows.meta,positioning,calc,fit,backgrounds,shadows,decorations.pathmorphing}
+
+% 9. tcolorbox & Custom Boxes
+\RequirePackage[many]{tcolorbox}
+
+% Chapter Banner Box (Flush Right, Navy Gradient with Gold Accent)
+\newcommand{\rbruchapterbanner}[1]{%
+    \begin{tcolorbox}[
+        enhanced,
+        width=\textwidth,
+        colback=rbruNavy,
+        colframe=rbruNavy,
+        arc=2.5mm,
+        boxrule=0pt,
+        leftrule=0pt,
+        rightrule=0pt,
+        toprule=0pt,
+        bottomrule=0pt,
+        borderline east={4pt}{0pt}{rbruGold},
+        interior style={left color=rbruNavy!98!black, right color=rbruNavy!82!rbruSlate},
+        top=14pt,
+        bottom=14pt,
+        left=14pt,
+        right=18pt,
+        shadow={0mm}{0mm}{0mm}{black}
+    ]
+        \begin{flushright}
+            {\fontsize{40}{46}\selectfont\bfseries\color{white}\chaptertitlename\ \thechapter}\par
+            \vspace{4pt}
+            {\color{rbruGold}\rule{0.52\textwidth}{2.2pt}}\par
+            \vspace{8pt}
+            {\fontsize{23}{29}\selectfont\bfseries\color{white}#1}\par
+        \end{flushright}
+    \end{tcolorbox}
+    \vspace{8pt}
+}
+
+\newcommand{\rbruunnumberedchapterbanner}[1]{%
+    \begin{tcolorbox}[
+        enhanced,
+        width=\textwidth,
+        colback=rbruNavy,
+        colframe=rbruNavy,
+        arc=2.5mm,
+        boxrule=0pt,
+        borderline east={4pt}{0pt}{rbruGold},
+        interior style={left color=rbruNavy!98!black, right color=rbruNavy!85!rbruSlate},
+        top=14pt,
+        bottom=14pt,
+        left=14pt,
+        right=18pt
+    ]
+        \begin{flushright}
+            {\fontsize{26}{32}\selectfont\bfseries\color{white}#1}\par
+        \end{flushright}
+    \end{tcolorbox}
+    \vspace{8pt}
+}
+
+% Titlesec Setup
+\RequirePackage{titlesec}
+\titleformat{\chapter}[block]{\normalfont}{}{0pt}{\rbruchapterbanner}
+\titleformat{name=\chapter,numberless}[block]{\normalfont}{}{0pt}{\rbruunnumberedchapterbanner}
+\titlespacing*{\chapter}{0pt}{0pt}{16pt}
+
+\titleformat{\section}[block]{\normalfont\fontsize{18}{22}\selectfont\bfseries\color{rbruNavy}}{\makebox[1.25cm][l]{\thesection}}{0pt}{}
+\titlespacing*{\section}{0pt}{14pt plus 3pt minus 2pt}{6pt plus 2pt minus 1pt}
+
+\titleformat{\subsection}[block]{\normalfont\fontsize{16}{20}\selectfont\bfseries\color{rbruSlate}}{\makebox[1.25cm][l]{\thesubsection}}{0pt}{}
+\titlespacing*{\subsection}{1.25cm}{12pt plus 3pt minus 2pt}{4pt plus 2pt minus 1pt}
+
+% Dynamic Indentation Wrappers for Hierarchical Parindent
+\let\rbruorigsection\section
+\renewcommand{\section}{\Needspace*{8\baselineskip}\global\setlength{\parindent}{1.25cm}\rbruorigsection}
+
+\let\rbruorigsubsection\subsection
+\renewcommand{\subsection}{\Needspace*{5\baselineskip}\global\setlength{\parindent}{2.50cm}\rbruorigsubsection}
+
+% Modular Lesson Plan Box (Planbox)
+\newtcolorbox{planbox}[2][]{
+    enhanced,
+    breakable,
+    colback=white,
+    colframe=rbruNavy,
+    fonttitle=\bfseries\fontsize{13}{16}\selectfont\color{white},
+    coltitle=white,
+    colbacktitle=rbruNavy,
+    title={#2},
+    arc=1.5mm,
+    boxrule=0.8pt,
+    leftrule=3.5mm,
+    top=4pt, bottom=4pt, left=10pt, right=10pt,
+    titlerule=0pt,
+    toptitle=3pt, bottomtitle=3pt,
+    drop shadow=black!8,
+    before skip=4pt,
+    after skip=4pt,
+    #1
+}
+
+% Academic Callout & Formula Boxes
+\newtcolorbox{formulabox}[1][สมการทางฟิสิกส์และการคำนวณ]{
+    enhanced,
+    colback=agriGreen!5!white,
+    colframe=agriGreen!80!black,
+    fonttitle=\bfseries\fontsize{12}{15}\selectfont\color{white},
+    colbacktitle=agriGreen!90!black,
+    title={#1},
+    arc=1.5mm,
+    boxrule=0.8pt,
+    leftrule=3.5mm,
+    top=6pt, bottom=6pt, left=10pt, right=10pt,
+    before skip=6pt,
+    after skip=6pt
+}
+
+\newtcolorbox{codebox}[1][รหัสคำสั่งจำลองและอัลกอริทึม]{
+    enhanced,
+    colback=rbruCodeBg,
+    colframe=rbruNavy!85!black,
+    fonttitle=\bfseries\fontsize{11}{14}\selectfont\color{white},
+    colbacktitle=rbruNavy!85!black,
+    title={#1},
+    arc=1.5mm,
+    boxrule=0.8pt,
+    leftrule=3.5mm,
+    top=5pt, bottom=5pt, left=8pt, right=8pt,
+    before skip=6pt,
+    after skip=6pt
+}
+
+% 10. Headers and Footers (Fancyhdr)
+\RequirePackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{\fontsize{12}{14}\selectfont\thepage}
+\fancyhead[RE]{\fontsize{11}{13}\selectfont\color{rbruSlate}\nouppercase{\leftmark}}
+\fancyhead[LO]{\fontsize{11}{13}\selectfont\color{rbruSlate}\nouppercase{\rightmark}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\renewcommand{\chaptermark}[1]{%
+    \markboth{%
+        \ifnum \c@secnumdepth >\m@ne
+            \if@mainmatter
+                \chaptertitlename\ \thechapter\quad
+            \fi
+        \fi
+        #1%
+    }{}%
+}
+
+% 11. Enumerate & Itemize Spacing
+\RequirePackage{enumitem}
+\setlist{nosep, leftmargin=1.5em, itemsep=2pt, topsep=2pt}
+
+% 12. Hyperref
+\RequirePackage[
+    colorlinks=true,
+    linkcolor=rbruNavy,
+    citecolor=agriGreen,
+    urlcolor=agriCyan,
+    bookmarks=true,
+    pdfencoding=auto
+]{hyperref}

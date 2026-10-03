@@ -1,0 +1,49 @@
+\documentclass[12pt,a4paper,oneside]{book}
+
+% RBRU Style Package
+\usepackage{styles/rbru_style}
+
+\begin{document}
+
+% --- ส่วนนำ (Frontmatter) ---
+\frontmatter
+\pagestyle{empty}
+
+% หน้าปก
+\input{frontmatter/cover.tex}
+
+\pagestyle{fancy}
+\pagenumbering{roman}
+
+% คำนำ
+\input{frontmatter/preface.tex}
+
+% สารบัญ สารบัญภาพ สารบัญตาราง
+\input{frontmatter/toc.tex}
+
+% --- ส่วนเนื้อหา (Mainmatter) ---
+\mainmatter
+\pagenumbering{arabic}
+
+% บทที่ 1: สถาปัตยกรรมระบบโดรนและเครือข่ายสื่อสารไร้สาย
+\input{chapters/ch01_architecture.tex}
+
+% บทที่ 2: การพัฒนาแอปพลิเคชันควบคุมการบินด้วย Flutter และสถาปัตยกรรมส่วนต่อประสาน
+\input{chapters/ch02_flutter_uiux.tex}
+
+% บทที่ 3: การตรวจวัดและการวิเคราะห์สเปกตรัมภาพถ่ายเกษตรแม่นยำ
+\input{chapters/ch03_agrivision.tex}
+
+% บทที่ 4: การตรวจวัดเชิงกายภาพและการบินเชิงปริมาณ
+\input{chapters/ch04_quantification.tex}
+
+% --- ส่วนท้าย (Backmatter) ---
+\backmatter
+
+% บรรณานุกรม
+\input{backmatter/references.tex}
+
+% ประวัติผู้เขียน
+\input{backmatter/author.tex}
+
+\end{document}
