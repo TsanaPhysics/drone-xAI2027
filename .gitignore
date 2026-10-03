@@ -1,0 +1,27 @@
+# Flutter build & dependencies
+flutter_drone_agri/build/
+flutter_drone_agri/.dart_tool/
+flutter_drone_agri/.flutter-plugins
+flutter_drone_agri/.flutter-plugins-dependencies
+flutter_drone_agri/.packages
+flutter_drone_agri/.pub/
+flutter_drone_agri/.pub-cache/
+
+# LaTeX temp files
+manual_rbru_latex/*.aux
+manual_rbru_latex/*.log
+manual_rbru_latex/*.out
+manual_rbru_latex/*.toc
+manual_rbru_latex/*.synctex.gz
+manual_rbru_latex/chapters/*.aux
+manual_rbru_latex/frontmatter/*.aux
+manual_rbru_latex/backmatter/*.aux
+
+# Temp screenshots
+device_screenshot*.png
+flutter_phone_screen.png
+
+# OS & Editor
+.DS_Store
+.idea/
+*.swp
