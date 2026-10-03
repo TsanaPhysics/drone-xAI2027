@@ -7,14 +7,9 @@ import 'services/agri_vision_service.dart';
 import 'ui/screens/hud_cockpit_screen.dart';
 
 void main() {
+  print('DEBUG: >>> MAGIC DRONE DART MAIN CALLED <<<');
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Set Landscape orientation for Drone FPV Cockpit
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.landscapeLeft,
-    DeviceOrientation.landscapeRight,
-  ]);
-
+  print('DEBUG: >>> WIDGETS BINDING INITIALIZED <<<');
   runApp(
     MultiProvider(
       providers: [

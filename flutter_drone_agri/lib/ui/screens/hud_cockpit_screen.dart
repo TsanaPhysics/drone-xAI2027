@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../services/drone_udp_service.dart';
@@ -29,8 +30,184 @@ class _HudCockpitScreenState extends State<HudCockpitScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print('DEBUG: >>> HUD COCKPIT BUILD CALLED <<<');
     final udpService = context.watch<DroneUdpService>();
     final agriService = context.watch<AgriVisionService>();
+    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+
+    if (isPortrait) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          backgroundColor: AppTheme.cardBg,
+          title: Row(
+            children: [
+              Image.asset('assets/icons/app_icon.png', width: 26, height: 26, errorBuilder: (_, __, ___) => const Icon(Icons.flight, color: AppTheme.neonCyan)),
+              const SizedBox(width: 8),
+              const Text('MAGIC Drone Agri', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.screen_rotation, color: AppTheme.neonYellow),
+              tooltip: 'หมุนเป็นแนวนอน (Landscape Cockpit)',
+              onPressed: () {
+                SystemChrome.setPreferredOrientations([
+                  DeviceOrientation.landscapeLeft,
+                  DeviceOrientation.landscapeRight,
+                ]);
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.psychology, color: AppTheme.neonGreen),
+              tooltip: 'วิเคราะห์แปลง (Agri)',
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AgriAnalysisScreen())),
+            ),
+            IconButton(
+              icon: const Icon(Icons.map, color: AppTheme.neonCyan),
+              tooltip: 'แผนการบิน (Map)',
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FlightPlanScreen())),
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            // Top Half: Live Video Feed with HUD Overlay
+            Expanded(
+              flex: 5,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: RadialGradient(
+                        center: Alignment.center,
+                        radius: 0.8,
+                        colors: [
+                          const Color(0xFF1B4332).withOpacity(0.5),
+                          Colors.black,
+                        ],
+                      ),
+                    ),
+                  ),
+                  TelemetryOverlay(
+                    altitude: udpService.altitude,
+                    speed: udpService.speed,
+                    battery: udpService.batteryPercent,
+                    rollAngle: udpService.rollAngle,
+                    pitchAngle: udpService.pitchAngle,
+                    headingDegrees: udpService.headingDegrees,
+                    windSpeed: udpService.windSpeedMps,
+                    isSprayActive: udpService.isSprayActive,
+                    isLowBattery: udpService.isLowBatteryAlert,
+                    isAltitudeBreach: udpService.isAltitudeLimitBreach,
+                    isWindWarning: udpService.isWindWarning,
+                  ),
+                ],
+              ),
+            ),
+            // Bottom Half: Control Dashboard & Action Controls
+            Expanded(
+              flex: 4,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.cardBg.withOpacity(0.9),
+                  border: const Border(top: BorderSide(color: AppTheme.neonCyan, width: 1.5)),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    // Status Badge
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 10,
+                              height: 10,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: udpService.isConnected ? AppTheme.neonGreen : AppTheme.neonRed,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(udpService.statusMessage, style: const TextStyle(fontSize: 12, color: AppTheme.neonCyan)),
+                          ],
+                        ),
+                        Text(
+                          'BAT: ${udpService.batteryPercent}% | ALT: ${udpService.altitude.toStringAsFixed(1)}m',
+                          style: const TextStyle(fontSize: 12, fontFamily: 'monospace', color: AppTheme.neonYellow),
+                        ),
+                      ],
+                    ),
+                    // Action Buttons Row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildActionButton(
+                          label: 'TAKEOFF',
+                          icon: Icons.flight_takeoff,
+                          color: AppTheme.neonCyan,
+                          onPressed: () => udpService.takeoff(),
+                        ),
+                        _buildActionButton(
+                          label: 'LAND',
+                          icon: Icons.flight_land,
+                          color: AppTheme.neonYellow,
+                          onPressed: () => udpService.land(),
+                        ),
+                        _buildActionButton(
+                          label: udpService.isSprayActive ? 'SPRAY ON' : 'SPRAY OFF',
+                          icon: Icons.water_drop,
+                          color: udpService.isSprayActive ? AppTheme.neonGreen : AppTheme.textDim,
+                          onPressed: () => udpService.toggleSpray(),
+                        ),
+                        _buildActionButton(
+                          label: 'CUT',
+                          icon: Icons.power_settings_new,
+                          color: AppTheme.neonRed,
+                          onPressed: () => udpService.emergencyStop(),
+                        ),
+                      ],
+                    ),
+                    // Landscape Recommendation Banner
+                    InkWell(
+                      onTap: () {
+                        SystemChrome.setPreferredOrientations([
+                          DeviceOrientation.landscapeLeft,
+                          DeviceOrientation.landscapeRight,
+                        ]);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppTheme.neonCyan.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppTheme.neonCyan.withOpacity(0.4)),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.screen_rotation, size: 16, color: AppTheme.neonCyan),
+                            SizedBox(width: 8),
+                            Text(
+                              'แตะที่นี่ หรือ หมุนเครื่องแนวนอน เพื่อเปิด FPV Full Cockpit',
+                              style: TextStyle(fontSize: 11, color: AppTheme.neonCyan, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return Scaffold(
       body: SafeArea(
